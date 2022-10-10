@@ -1,23 +1,38 @@
 const cep = document.querySelector("#cep");
 
-//o evento blur significa que clicamos na caixa de texto e saímos dela.
-cep.addEventListener("blur", (e) => {
-  let search = cep.value.replace("-", "");
+const showData = async (result) => {
+  for (const campo in result) {
+    if (document.querySelector("#" + campo)) {
+      document.querySelector("#" + campo).value = result[campo];
+    }
+  }
+};
 
-  const options = {
+cep.addEventListener("blur", async (e) => {
+  let search = cep.value.replace("-", "");
+  console.log(Number(search));
+  if (search.length < 8 || isNaN(search)) {
+    alert("Cep inválido");
+    cep.value = "";
+    return;
+  }
+
+  //Cors é uma abreviação para Croos Origin Resouse Sharing.
+  //NaN - Not a Number.
+  const chocolate = {
     method: "GET",
     mode: "cors",
     cache: "default",
   };
 
-  // https://viacep.com.br/ws/01001000/json/
+  const resultado = await fetch(
+    `https://viacep.com.br/ws/${search}/json/`,
+    chocolate
+  );
+  const json = await resultado.json();
 
-  //fetch vai gerar uma promise. Promise é uma promessa de que algo vai acontecer.
-  // se der certo, ele vai retornar o resultado. Se der errado, ele vai retornar um erro.
-  // se der certo nós resolvemos a promise. Se der errado, nós rejeitamos a promise.
-  fetch(`https://viacep.com.br/ws/${search}/json/`, options)
-    .then((response) => {
-      response.json().then((result) => console.log(result));
-    })
-    .catch((e) => console.log(e.message));
+  showData(json);
 });
+
+// async/await -  são primos. Onde um ta o outro tbm. Onde o await está o async tem que estar.
+
